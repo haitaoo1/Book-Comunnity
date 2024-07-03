@@ -6,7 +6,9 @@ import com.haitao.book.entities.User;
 import com.haitao.book.repositories.RoleRepository;
 import com.haitao.book.repositories.TokenRepository;
 import com.haitao.book.repositories.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +24,11 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
+    private final EmailService emailService;
+    @Value("${application.mailing.frontend.activation-url}")
+    private String activationUrl;
 
-    public void register(RegistrationRequest request) {
+    public void register(RegistrationRequest request) throws MessagingException {
         var userRole = roleRepository.findByname("USER")
                 // to do better exception handling
                 .orElseThrow(() -> new IllegalStateException("Role User was not initialized"));
@@ -45,10 +50,17 @@ public class AuthenticationService {
         sendValidationEmail(user);
     }
 
-    private void sendValidationEmail(User user) {
+    private void sendValidationEmail(User user) throws MessagingException {
         var newToken = generateAndSaveActivationToken(user);
 
         //send email
+        emailService.sendEmail(user.getEmail(), user.getUsername(),
+                                EmailTemplate.ACTIVATE_ACCOUNT,
+                                activationUrl,
+                                newToken,
+                                "Account Activation"
+                );
+
 
     }
 

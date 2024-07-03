@@ -3,6 +3,7 @@ package com.haitao.book.controllers;
 import com.haitao.book.controllers.models.RegistrationRequest;
 import com.haitao.book.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request){
+    public ResponseEntity<?> register(@RequestBody @Valid RegistrationRequest request) throws MessagingException {
 
         authService.register(request);
         return ResponseEntity.accepted().build();
