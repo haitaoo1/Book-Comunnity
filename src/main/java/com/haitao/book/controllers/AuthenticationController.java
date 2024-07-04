@@ -1,5 +1,7 @@
 package com.haitao.book.controllers;
 
+import com.haitao.book.controllers.models.AuthenticatioRequest;
+import com.haitao.book.controllers.models.AuthenticationResponse;
 import com.haitao.book.controllers.models.RegistrationRequest;
 import com.haitao.book.services.AuthenticationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +28,15 @@ public class AuthenticationController {
         return ResponseEntity.accepted().build();
     }
 
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody @Valid AuthenticatioRequest request){
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
+
+    @GetMapping("/activate-account")
+    public void confirm(@RequestParam String token) throws MessagingException {
+        authService.activateAccount(token);
+    }
 
 
 }

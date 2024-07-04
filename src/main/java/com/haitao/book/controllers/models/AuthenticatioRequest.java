@@ -10,17 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class RegistrationRequest {
 
-    @NotEmpty(message = "First name is required")
-    @NotBlank(message = "First name is required")
-    private String firstname;
-    @NotEmpty(message = "last name is required")
-    @NotBlank(message = "last name is required")
-    private String lastname;
-    @NotEmpty(message = "email name is required")
-    @NotBlank(message = "email name is required")
-    private String email;
+public class AuthenticatioRequest {
+
     @NotEmpty(message = "username name is required")
     @NotBlank(message = "username name is required")
     @Size(min = 5, message = "user should be longer")
@@ -29,5 +21,5 @@ public class RegistrationRequest {
     @NotBlank(message = "password name is required")
     @Size(min = 5, message = "Password should be 8 characters long minimum")
     private String password;
-}
 
+}

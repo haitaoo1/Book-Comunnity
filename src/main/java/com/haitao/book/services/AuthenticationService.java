@@ -1,5 +1,7 @@
 package com.haitao.book.services;
 
+import com.haitao.book.controllers.models.AuthenticatioRequest;
+import com.haitao.book.controllers.models.AuthenticationResponse;
 import com.haitao.book.controllers.models.RegistrationRequest;
 import com.haitao.book.entities.Token;
 import com.haitao.book.entities.User;
@@ -9,11 +11,16 @@ import com.haitao.book.repositories.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -25,6 +32,9 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
 
@@ -60,8 +70,6 @@ public class AuthenticationService {
                                 newToken,
                                 "Account Activation"
                 );
-
-
     }
 
     private String generateAndSaveActivationToken(User user) {
@@ -75,7 +83,6 @@ public class AuthenticationService {
                 .build();
 
         tokenRepository.save(token);
-
         return generateToken;
     }
 
@@ -92,5 +99,49 @@ public class AuthenticationService {
             codeBuilder.append(characters.charAt(randomIndex));
         }
         return codeBuilder.toString();
+    }
+
+    public AuthenticationResponse authenticate(AuthenticatioRequest request) {
+
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+
+                )
+        );
+        //user is authenticated
+        var claims = new HashMap<String, Object>();
+        //cast the auth to user. In User class we implemented Principal
+        var user = ((User)auth.getPrincipal());
+        claims.put("fullname", user.fullName());
+
+        var jwtToken = jwtService.generateToken(claims, user);
+        return AuthenticationResponse.builder().token(jwtToken).build();
+    }
+
+    @Transactional
+    public void activateAccount(String token) throws MessagingException {
+        Token savedToken = tokenRepository.findByToken(token)
+                    .orElseThrow(()-> new RuntimeException("Invalid token"));
+
+        //if the validation time is expired send again the email validation
+        if(LocalDateTime.now().isAfter(savedToken.getExpiresAt())){
+            sendValidationEmail(savedToken.getUser());
+            throw new RuntimeException("Activation token has expired. A new validation code has been sent");
+        }
+
+        var user = userRepository.findById(savedToken.getUser().getId()).orElseThrow(
+                ()-> new UsernameNotFoundException("User not found"));
+
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        savedToken.setValidatedAt(LocalDateTime.now());
+        tokenRepository.save(savedToken);
+
+
+
+
     }
 }
