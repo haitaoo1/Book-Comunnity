@@ -1,5 +1,6 @@
 package com.haitao.book.controllers.models;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -20,6 +21,7 @@ public class RegistrationRequest {
     private String lastname;
     @NotEmpty(message = "email name is required")
     @NotBlank(message = "email name is required")
+    @Email(message = "Email format is incorrect")
     private String email;
     @NotEmpty(message = "username name is required")
     @NotBlank(message = "username name is required")
