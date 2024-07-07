@@ -27,7 +27,6 @@ public class GlobalExceptionHandler {
                         .businessErrorDescription(BusinessErrorCodes.ACCOUNT_LOCKED.getDescription())
                         .error(exp.getMessage())
                         .build());
-
     }
 
     @ExceptionHandler(DisabledException.class)
