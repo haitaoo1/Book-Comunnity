@@ -47,15 +47,13 @@ public class User implements UserDetails, Principal {
             uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"})
     )
     private List<Role> roles;
-//    private List<Token> token;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Book> books;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDate createDate;
-    @LastModifiedDate
-    @Column(insertable = false)
-    private LocalDate lastModifiedDate;
+    @OneToMany(mappedBy = "user")
+    private List<BookTransactionHistory> histories;
+
 
     @Override
     public String getName() {
