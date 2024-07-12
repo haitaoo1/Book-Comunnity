@@ -2,7 +2,9 @@ package com.haitao.book.services;
 
 import com.haitao.book.controllers.models.BookRequest;
 import com.haitao.book.controllers.models.BookResponse;
+import com.haitao.book.controllers.models.BorrowedBookResponse;
 import com.haitao.book.entities.Book;
+import com.haitao.book.entities.BookTransactionHistory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,6 +33,17 @@ public class BookMaper {
                 .owner(book.getOwner().fullName())
                 //.cover()
                 //to implement later
+                .build();
+    }
+
+    public BorrowedBookResponse toBoorrowedBookResponse(BookTransactionHistory history) {
+        return BorrowedBookResponse.builder()
+                .id(history.getId())
+                .tittle(history.getBook().getTittle())
+                .authorName(history.getBook().getAuthorName())
+                .isbn(history.getBook().getIsbn())
+                .returned(history.isReturned())
+                .returnedApproved(history.isReturnApproved())
                 .build();
     }
 }
