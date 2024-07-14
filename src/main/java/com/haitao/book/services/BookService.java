@@ -13,10 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 import java.util.Objects;
@@ -182,5 +180,28 @@ public class BookService {
                 .build();
 
         return historyRepository.save(bookTransactionHistory).getId();
+
+    }
+
+    public Integer returnBorrowedBook(Integer bookId, Authentication connectedUser) {
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(()-> new EntityNotFoundException("No book found with this id"+ bookId));
+
+        if(book.isArchived() || !book.isShareable()){
+            throw new OperationNotPermittedException("The request cannot be borrowed");
+        }
+
+        User user = (User) connectedUser.getPrincipal();
+        if(Objects.equals(book.getOwner().getId(), user.getId())){
+            throw new OperationNotPermittedException("You cannot borrow or return your own book");
+        }
+
+        BookTransactionHistory history = historyRepository.findByBookIdAndUserId(bookId,user.getId())
+                .orElseThrow(() -> new OperationNotPermittedException("You did not borrow this book"));
+
+        history.setReturned(true);
+
+        return historyRepository.save(history).getId();
     }
 }

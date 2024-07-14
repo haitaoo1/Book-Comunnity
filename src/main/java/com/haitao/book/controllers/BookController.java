@@ -8,7 +8,6 @@ import com.haitao.book.services.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -92,6 +91,14 @@ public class BookController {
          Authentication connectedUser
     ){
         return ResponseEntity.ok(bookService.borrowBook(bookId,connectedUser));
+    }
+
+    @PatchMapping("/borrow/return/{book-id}")
+    public ResponseEntity<Integer> retuneBook(
+        @PathVariable("book-id") Integer bookId,
+        Authentication connectedUser
+    ){
+        return ResponseEntity.ok(bookService.returnBorrowedBook(bookId,connectedUser));
     }
 
 
