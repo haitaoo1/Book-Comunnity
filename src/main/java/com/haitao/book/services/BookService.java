@@ -4,6 +4,7 @@ import com.haitao.book.controllers.models.*;
 import com.haitao.book.entities.Book;
 import com.haitao.book.entities.BookTransactionHistory;
 import com.haitao.book.entities.User;
+import com.haitao.book.handler.OperationNotPermittedException;
 import com.haitao.book.repositories.BookRepository;
 import com.haitao.book.repositories.BookTransactionHistoryRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -116,5 +118,69 @@ public class BookService {
                 allReturnedBook.isLast()
         );
 
+    }
+
+    public Integer updateShareableStatus(Integer bookId, Authentication connectedUser) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(()-> new EntityNotFoundException("No book found with this id"+ bookId));
+
+        User user = (User) connectedUser.getPrincipal();
+
+        if(!Objects.equals(book.getOwner().getId(), user.getId())){
+            throw new OperationNotPermittedException("You cannot update book shareable status");
+        }
+
+        //Inverse the status
+        book.setShareable(!book.isShareable());
+
+        bookRepository.save(book);
+        return bookId;
+
+    }
+
+    public Integer updateArchivedStatus(Integer bookId, Authentication connectedUser) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(()-> new EntityNotFoundException("No book found with this id"+ bookId));
+
+        User user = (User) connectedUser.getPrincipal();
+
+        if(!Objects.equals(book.getOwner().getId(), user.getId())){
+            throw new OperationNotPermittedException("You cannot update book archivable status");
+        }
+
+        //Inverse the status
+        book.setArchived(!book.isArchived());
+
+        bookRepository.save(book);
+        return bookId;
+    }
+
+    public Integer borrowBook(Integer bookId, Authentication connectedUser) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No book with this id" + bookId));
+
+        if(book.isArchived() || !book.isShareable()){
+            throw new OperationNotPermittedException("The request cannot be borrowed");
+        }
+
+        User user = (User) connectedUser.getPrincipal();
+
+        if(Objects.equals(book.getOwner().getId(), user.getId())){
+            throw new OperationNotPermittedException("You cannot borrow your own book");
+        }
+
+        final Boolean isAlreadyBorrowed = historyRepository.isAlreadyBorrowedByUser(bookId, user.getId());
+        if(isAlreadyBorrowed){
+            throw new OperationNotPermittedException("The book is already boorroed");
+        }
+
+        BookTransactionHistory bookTransactionHistory = BookTransactionHistory.builder()
+                .user(user)
+                .book(book)
+                .returned(false)
+                .returnApproved(false)
+                .build();
+
+        return historyRepository.save(bookTransactionHistory).getId();
     }
 }
