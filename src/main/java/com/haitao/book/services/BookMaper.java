@@ -5,6 +5,7 @@ import com.haitao.book.controllers.models.BookResponse;
 import com.haitao.book.controllers.models.BorrowedBookResponse;
 import com.haitao.book.entities.Book;
 import com.haitao.book.entities.BookTransactionHistory;
+import com.haitao.book.file.FileUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,7 +32,7 @@ public class BookMaper {
                 .archived(book.isArchived())
                 .shareable(book.isShareable())
                 .owner(book.getOwner().fullName())
-                //.cover()
+                .cover(FileUtils.readFileFromLocation(book.getBookCover()))
                 .build();
     }
 
