@@ -32,7 +32,6 @@ public class BookMaper {
                 .shareable(book.isShareable())
                 .owner(book.getOwner().fullName())
                 //.cover()
-                //to implement later
                 .build();
     }
 
