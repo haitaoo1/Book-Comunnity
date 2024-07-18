@@ -7,6 +7,7 @@ import com.haitao.book.entities.User;
 import com.haitao.book.handler.OperationNotPermittedException;
 import com.haitao.book.repositories.BookRepository;
 import com.haitao.book.repositories.BookTransactionHistoryRepository;
+import com.haitao.book.services.mapers.BookMaper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

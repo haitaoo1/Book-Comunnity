@@ -3,6 +3,7 @@ package com.haitao.book.repositories;
 
 import com.haitao.book.entities.Book;
 import com.haitao.book.entities.BookTransactionHistory;
+import com.haitao.book.entities.Feedback;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,4 +22,10 @@ public interface BookRepository extends JpaRepository<Book, Integer>, JpaSpecifi
             """)
     Page<Book> findAllDisplayableBooks(Pageable pageable, Integer userId);
 
+    @Query("""
+        SELECT feedback
+        FROM Feedback feedback
+        WHERE feedback.book.id = :boodId
+        """)
+    Page<Feedback> findAllByBookId(Integer bookId, Pageable pageable);
 }

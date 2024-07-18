@@ -1,4 +1,4 @@
-package com.haitao.book.services;
+package com.haitao.book.services.mapers;
 
 import com.haitao.book.controllers.models.BookRequest;
 import com.haitao.book.controllers.models.BookResponse;

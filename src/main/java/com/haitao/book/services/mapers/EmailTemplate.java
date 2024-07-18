@@ -1,4 +1,4 @@
-package com.haitao.book.services;
+package com.haitao.book.services.mapers;
 
 import lombok.Getter;
 

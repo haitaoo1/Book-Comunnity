@@ -8,6 +8,7 @@ import com.haitao.book.entities.User;
 import com.haitao.book.repositories.RoleRepository;
 import com.haitao.book.repositories.TokenRepository;
 import com.haitao.book.repositories.UserRepository;
+import com.haitao.book.services.mapers.EmailTemplate;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
