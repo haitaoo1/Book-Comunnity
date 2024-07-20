@@ -110,7 +110,7 @@ public class BookController {
         return ResponseEntity.ok(bookService.approveReturnBorrowedBook(bookId,connectedUser));
     }
 
-    @PostMapping(value = "/cover/{book-id}", consumes = "multipart/form/data")
+    @PostMapping(value = "/cover/{book-id}", consumes = "multipart/form-data")
     public ResponseEntity<?> uploadBookCoverPicture(
             @PathVariable("book-id") Integer bookId,
             @Parameter()
